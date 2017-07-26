@@ -16,7 +16,8 @@
 */
 
 let player, opponent;
-
+let maxScore = 50;
+let infinity = 10000;
 function getMove(board, __player){
     player = __player;
     opponent = 1 - player;
@@ -28,7 +29,9 @@ function getMove(board, __player){
     should be false when called from bestMove() method.
 */
 
-function miniMax(board, depth, isMax){
+function miniMax(board, depth, alpha, beta, isMax){
+    if(beta <= alpha)
+	return 0;
     const score = evaluate(board);
     if(score != 0)
         return score;
@@ -36,26 +39,30 @@ function miniMax(board, depth, isMax){
         return 0;
     const len = board.length;
     if(isMax){
-        var best = -1000;
+        var best = -infinity;
         for(let row = 0; row < len; row++){
             for(let col = 0; col < len; col++){
                 if(board[row][col] == -1){
                     board[row][col] = player;
-                    best = Math.max(best, miniMax(board, depth + 1, !isMax) - depth);
+                    best = Math.max(best, miniMax(board, depth + 1, alpha, beta, !isMax) - depth);
                     board[row][col] = -1;
+		if(best > alpha)
+		    alpha = best;
                 }
             }
         }
         return best;
     }
     else{
-    var best = 1000;
+    var best = infinity;
         for(let row = 0; row < len; row++){
             for(let col = 0; col < len; col++){
                 if(board[row][col] == -1){
                     board[row][col] = opponent;
-                    best = Math.min(best, miniMax(board, depth + 1, !isMax) + depth);
+                    best = Math.min(best, miniMax(board, depth + 1, alpha, beta, !isMax) + depth);
                     board[row][col] = -1;
+		 if(best < beta)
+		    beta = best;
                 }
             }
         }
@@ -67,14 +74,14 @@ function bestMove(board){
     /*Move the player to all available positions and
         choose the position on which evaluation is maximum.
     */
-    let bestVal = -1000;
+    let bestVal = -infinity;
     let bestPos = {'row': -1, 'col': -1};
     const len = board.length;
     for(let row = 0; row < len; row++){
         for(let col = 0; col < len; col++){
             if(board[row][col] == -1){
                 board[row][col] = player;
-                let evaluation = miniMax(board, 0, false);
+                let evaluation = miniMax(board, 0,-infinity, infinity, false);
                 // remove assigned value
                 board[row][col] = -1;
                 if(evaluation > bestVal){
@@ -99,18 +106,18 @@ function evaluate(board){
 	const len = board.length;
 	for(let row = 0; row < len; row++){
 		let val = board[row][0];
-		if(val == -1)
+		if(val == -1) // row has empty positions
 		    break;
 		let allSame = true;
 		for(let col = 1; col < len; col++){
-            if(val != board[row][col])
-                allSame = false;
+            	    if(val != board[row][col])
+                        allSame = false;
 		}
 		if(allSame){
 		    if(val == player)
-		        return 10;
+		        return maxScore;
 		    else
-		        return -10;		        
+		        return -maxScore;		        
 		}
 	}
 	
@@ -121,14 +128,14 @@ function evaluate(board){
 		    break;
 		let allSame = true;
 		for(let row = 1; row < len; row++){
-            if(val != board[row][col])
-                allSame = false;
+            	    if(val != board[row][col])
+                	allSame = false;
 		}
 		if(allSame){
 		    if(val == player)
-		        return 10;
+		        return maxScore;
 		    else
-		        return -10;
+		        return -maxScore;
 		}
 	}
 	
@@ -145,28 +152,28 @@ function evaluate(board){
 	}
 	if(allSame){
 	    if(val == player)
-	        return 10;
+	        return maxScore;
 	    else
-	        return -10;
+	        return -maxScore;
 	}
 	
 	// check if off diagonal is same
 	val = board[len-1][0];
 	allSame = true;
-	if(val == -1)
-	    allSame = false;
+	if(val == -1)	// it's last test case, no further checks required
+	    return 0;
 	for(let row = 0; row < len; row++){
 	    if(val != board[row][len - row - 1])
 	        allSame = false;
 	}
 	if(allSame){
 	    if(val == player)
-	        return 10;
+	        return maxScore;
 	    else
-	        return -10;
+	        return -maxScore;
 	}	
 	
-	// Nobody wins, we neutral
+	// Nobody wins, are we cool?
 	return 0;
 }
 
@@ -188,7 +195,7 @@ function isGameOver(board, player = 1){
                 return false;
     }
     
-    // Man!, no empty box, it's over and yeah.. it's a draw
+    // Man!, no empty positions, it's over and yeah.. it's a draw
     return true;
 }
 
