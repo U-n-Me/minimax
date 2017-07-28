@@ -106,17 +106,15 @@ function evaluate(board){
 	const len = board.length;
 	for(let row = 0; row < len; row++){
 		let val = board[row][0];
-		if(val == -1) // row has empty positions
-		    break;
 		let allSame = true;
 		for(let col = 1; col < len; col++){
-            	    if(val != board[row][col])
-                        allSame = false;
+      if(val != board[row][col])
+         allSame = false;
 		}
 		if(allSame){
 		    if(val == player)
 		        return maxScore;
-		    else
+		    else if(val == opponent)
 		        return -maxScore;		        
 		}
 	}
@@ -124,17 +122,15 @@ function evaluate(board){
 	// check if a column is same
 	for(let col = 0; col < len; col++){
 		let val = board[0][col];
-		if(val == -1)
-		    break;
 		let allSame = true;
 		for(let row = 1; row < len; row++){
-            	    if(val != board[row][col])
-                	allSame = false;
+      if(val != board[row][col])
+        allSame = false;
 		}
 		if(allSame){
 		    if(val == player)
 		        return maxScore;
-		    else
+		    else if(val == opponent)
 		        return -maxScore;
 		}
 	}
@@ -142,8 +138,6 @@ function evaluate(board){
 	// check if main diagonal is same
 	let val = board[0][0];
 	let allSame = true;
-	if(val == -1)
-	    allSame = false;
 	for(let row = 1; row < len; row++){
 	    if(val != board[row][row]){
 	        allSame = false;
@@ -153,7 +147,7 @@ function evaluate(board){
 	if(allSame){
 	    if(val == player)
 	        return maxScore;
-	    else
+	    else if(val == opponent)
 	        return -maxScore;
 	}
 	
@@ -169,7 +163,7 @@ function evaluate(board){
 	if(allSame){
 	    if(val == player)
 	        return maxScore;
-	    else
+	    else if(val == opponent)
 	        return -maxScore;
 	}	
 	
